@@ -2,19 +2,785 @@
 import Layout from '../../layouts/Layout.astro';
 ---
 
-<Layout title="Festival by Github Copilot">
-  <main class="min-h-screen flex flex-col items-center justify-center px-6 py-20">
-    <div class="w-full max-w-2xl">
-      <a href={import.meta.env.BASE_URL} class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-primary mb-10 transition-colors">
-        ← Back to home
+<Layout title="ECHO Festival 2026 — Where Sound Meets Nature">
+  <style>
+    :root {
+      --festival-primary: #ff6b35;
+      --festival-secondary: #1a1a2e;
+      --festival-accent: #f7c948;
+      --festival-dark: #0f0f1a;
+      --festival-light: #fefefe;
+      --festival-gradient: linear-gradient(135deg, #ff6b35 0%, #f7c948 100%);
+    }
+
+    .festival-page {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--festival-dark);
+      color: var(--festival-light);
+      overflow-x: hidden;
+    }
+
+    /* Hero */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 80%, rgba(255,107,53,0.15) 0%, transparent 60%),
+                  var(--festival-dark);
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1' fill='rgba(255,255,255,0.03)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .hero-title {
+      font-size: clamp(4rem, 12vw, 10rem);
+      font-weight: 900;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      background: var(--festival-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: titlePulse 4s ease-in-out infinite alternate;
+    }
+
+    @keyframes titlePulse {
+      from { filter: brightness(1); }
+      to { filter: brightness(1.2); }
+    }
+
+    .hero-date {
+      font-size: 1.25rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-top: 1.5rem;
+    }
+
+    .hero-tagline {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 0.75rem;
+      font-style: italic;
+    }
+
+    .hero-cta {
+      margin-top: 3rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2.5rem;
+      background: var(--festival-gradient);
+      color: var(--festival-dark);
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 60px;
+      text-decoration: none;
+      transition: transform 0.3s, box-shadow 0.3s;
+      box-shadow: 0 4px 30px rgba(255,107,53,0.3);
+    }
+
+    .hero-cta:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 40px rgba(255,107,53,0.5);
+    }
+
+    /* Sections */
+    .section {
+      padding: 6rem 1.5rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: var(--festival-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .section-subtitle {
+      color: rgba(255,255,255,0.5);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin-bottom: 3rem;
+    }
+
+    /* Lineup */
+    .lineup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .lineup-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s;
+      cursor: default;
+    }
+
+    .lineup-card:hover {
+      background: rgba(255,107,53,0.08);
+      border-color: rgba(255,107,53,0.3);
+      transform: translateY(-4px);
+    }
+
+    .lineup-card.headliner {
+      grid-column: span 2;
+      padding: 2rem;
+      border-color: rgba(247,201,72,0.3);
+      background: rgba(247,201,72,0.05);
+    }
+
+    .lineup-card.headliner .artist-name {
+      font-size: 1.5rem;
+    }
+
+    .artist-name {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .artist-genre {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Map */
+    .map-container {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .map-svg {
+      width: 100%;
+      height: auto;
+    }
+
+    .map-zone {
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0.8;
+    }
+
+    .map-zone:hover {
+      opacity: 1;
+      filter: brightness(1.3);
+      transform-origin: center;
+    }
+
+    .map-zone:hover + .map-label {
+      opacity: 1;
+    }
+
+    .map-label {
+      pointer-events: none;
+      font-size: 11px;
+      font-weight: 700;
+      fill: white;
+      text-anchor: middle;
+      opacity: 0.7;
+      transition: opacity 0.3s;
+    }
+
+    .map-tooltip {
+      position: absolute;
+      background: rgba(15,15,26,0.95);
+      border: 1px solid rgba(255,107,53,0.4);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: all 0.25s ease;
+      backdrop-filter: blur(10px);
+      z-index: 100;
+      min-width: 180px;
+    }
+
+    .map-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .map-tooltip h4 {
+      font-weight: 700;
+      color: var(--festival-accent);
+      margin-bottom: 0.25rem;
+    }
+
+    .map-tooltip p {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.4;
+    }
+
+    /* Tickets */
+    .tickets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+
+    .ticket {
+      position: relative;
+      background: linear-gradient(160deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .ticket:hover {
+      transform: translateY(-8px);
+      border-color: rgba(255,107,53,0.4);
+      box-shadow: 0 20px 60px rgba(255,107,53,0.15);
+    }
+
+    .ticket::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--festival-gradient);
+    }
+
+    .ticket-header {
+      padding: 2rem 2rem 1rem;
+      border-bottom: 1px dashed rgba(255,255,255,0.1);
+      position: relative;
+    }
+
+    .ticket-header::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: -10px;
+      width: 20px;
+      height: 20px;
+      background: var(--festival-dark);
+      border-radius: 50%;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .ticket-header::before {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      right: -10px;
+      width: 20px;
+      height: 20px;
+      background: var(--festival-dark);
+      border-radius: 50%;
+      border-left: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .ticket-type {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: var(--festival-accent);
+      font-weight: 700;
+    }
+
+    .ticket-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-top: 0.5rem;
+    }
+
+    .ticket-body {
+      padding: 1.5rem 2rem;
+    }
+
+    .ticket-features {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .ticket-features li {
+      padding: 0.4rem 0;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.7);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .ticket-features li::before {
+      content: '✦';
+      color: var(--festival-primary);
+      font-size: 0.7rem;
+    }
+
+    .ticket-footer {
+      padding: 1.5rem 2rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ticket-price {
+      font-size: 2rem;
+      font-weight: 900;
+      background: var(--festival-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .ticket-price span {
+      font-size: 0.9rem;
+      font-weight: 400;
+      -webkit-text-fill-color: rgba(255,255,255,0.4);
+    }
+
+    .ticket-buy {
+      padding: 0.75rem 1.75rem;
+      background: var(--festival-gradient);
+      color: var(--festival-dark);
+      font-weight: 700;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+
+    .ticket-buy:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(255,107,53,0.4);
+    }
+
+    .ticket.featured {
+      border-color: rgba(247,201,72,0.3);
+      background: linear-gradient(160deg, rgba(247,201,72,0.08) 0%, rgba(255,107,53,0.03) 100%);
+    }
+
+    .ticket.featured .ticket-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+      background: var(--festival-accent);
+      color: var(--festival-dark);
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Scroll animations */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Back link */
+    .back-link {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      z-index: 50;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: color 0.3s;
+      backdrop-filter: blur(4px);
+      background: rgba(15,15,26,0.6);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+    }
+
+    .back-link:hover {
+      color: var(--festival-primary);
+    }
+
+    /* Nav */
+    .festival-nav {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      z-index: 50;
+      display: flex;
+      gap: 0.25rem;
+      background: rgba(15,15,26,0.8);
+      backdrop-filter: blur(10px);
+      padding: 0.4rem;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .festival-nav a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+    }
+
+    .festival-nav a:hover {
+      color: white;
+      background: rgba(255,107,53,0.15);
+    }
+
+    /* Footer */
+    .festival-footer {
+      text-align: center;
+      padding: 4rem 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.3);
+      font-size: 0.85rem;
+    }
+
+    /* Pulse rings on hero */
+    .pulse-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,107,53,0.15);
+      animation: pulseRing 4s ease-out infinite;
+    }
+
+    .pulse-ring:nth-child(1) { width: 300px; height: 300px; animation-delay: 0s; }
+    .pulse-ring:nth-child(2) { width: 500px; height: 500px; animation-delay: 1s; }
+    .pulse-ring:nth-child(3) { width: 700px; height: 700px; animation-delay: 2s; }
+
+    @keyframes pulseRing {
+      0% { opacity: 0.6; transform: scale(0.8); }
+      100% { opacity: 0; transform: scale(1.3); }
+    }
+  </style>
+
+  <div class="festival-page">
+    <a href={`${import.meta.env.BASE_URL}festival-task/`} class="back-link">← Back</a>
+
+    <nav class="festival-nav">
+      <a href="#lineup">Lineup</a>
+      <a href="#map">Map</a>
+      <a href="#tickets">Tickets</a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+      <div class="pulse-ring"></div>
+      <h1 class="hero-title">ECHO</h1>
+      <p class="hero-date">July 18 — 20 · 2026 · Trenčín Airfield</p>
+      <p class="hero-tagline">Where Sound Meets Nature</p>
+      <a href="#tickets" class="hero-cta">
+        Get Your Pass
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
-      <div class="flex items-center gap-4 mb-6">
-        <span class="text-sm font-bold uppercase tracking-widest text-primary">festival</span>
-        <h1 class="text-4xl font-bold">Festival by Github Copilot</h1>
+    </section>
+
+    <!-- LINEUP -->
+    <section class="section" id="lineup">
+      <div class="fade-in">
+        <h2 class="section-title">Lineup</h2>
+        <p class="section-subtitle">Three days, four stages, endless memories.</p>
       </div>
-      <p class="text-slate-500 text-lg leading-relaxed">
-        This is the Festival Task subpage generated by Github Copilot. Add your content here.
-      </p>
-    </div>
-  </main>
+      <div class="lineup-grid fade-in">
+        <div class="lineup-card headliner">
+          <div class="artist-name">Massive Attack</div>
+          <div class="artist-genre">Trip-Hop / Electronic</div>
+        </div>
+        <div class="lineup-card headliner">
+          <div class="artist-name">Björk</div>
+          <div class="artist-genre">Art-Pop / Experimental</div>
+        </div>
+        <div class="lineup-card">
+          <div class="artist-name">Bonobo</div>
+          <div class="artist-genre">Downtempo</div>
+        </div>
+        <div class="lineup-card">
+          <div class="artist-name">Moderat</div>
+          <div class="artist-genre">Electronic</div>
+        </div>
+        <div class="lineup-card">
+          <div class="artist-name">Khruangbin</div>
+          <div class="artist-genre">Psychedelic</div>
+        </div>
+        <div class="lineup-card">
+          <div class="artist-name">Floating Points</div>
+          <div class="artist-genre">Electronic / Jazz</div>
+        </div>
+        <div class="lineup-card">
+          <div class="artist-name">Cinematic Orchestra</div>
+          <div class="artist-genre">Nu-Jazz</div>
+        </div>
+        <div class="lineup-card">
+          <div class="artist-name">Ólafur Arnalds</div>
+          <div class="artist-genre">Neoclassical</div>
+        </div>
+        <div class="lineup-card">
+          <div class="artist-name">Caribou</div>
+          <div class="artist-genre">Electronica</div>
+        </div>
+        <div class="lineup-card">
+          <div class="artist-name">Nils Frahm</div>
+          <div class="artist-genre">Ambient / Piano</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAP -->
+    <section class="section" id="map">
+      <div class="fade-in">
+        <h2 class="section-title">Festival Map</h2>
+        <p class="section-subtitle">Explore the grounds — hover over zones to discover what awaits you.</p>
+      </div>
+      <div class="map-container fade-in">
+        <svg class="map-svg" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+          <!-- Background terrain -->
+          <defs>
+            <linearGradient id="grassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#1a3a2a;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#0f2a1a;stop-opacity:1" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          <rect width="800" height="500" fill="url(#grassGrad)" rx="16"/>
+
+          <!-- Paths / roads -->
+          <path d="M100,250 Q250,200 400,250 Q550,300 700,250" stroke="rgba(255,255,255,0.1)" stroke-width="3" fill="none" stroke-dasharray="8,4"/>
+          <path d="M400,50 Q380,150 400,250 Q420,350 400,450" stroke="rgba(255,255,255,0.08)" stroke-width="2" fill="none" stroke-dasharray="6,4"/>
+
+          <!-- Main Stage -->
+          <polygon class="map-zone" data-zone="main-stage" points="120,100 280,100 300,180 100,180" fill="#ff6b35" opacity="0.7" filter="url(#glow)"/>
+          <text class="map-label" x="200" y="148">MAIN STAGE</text>
+
+          <!-- Electronic Tent -->
+          <ellipse class="map-zone" data-zone="electronic" cx="580" cy="120" rx="90" ry="55" fill="#8b5cf6" opacity="0.6"/>
+          <text class="map-label" x="580" y="125">ELECTRONIC</text>
+
+          <!-- Forest Stage -->
+          <path class="map-zone" data-zone="forest-stage" d="M600,280 L660,240 L720,260 L730,330 L660,350 L590,330 Z" fill="#22c55e" opacity="0.6"/>
+          <text class="map-label" x="660" y="300">FOREST STAGE</text>
+
+          <!-- Chill Zone -->
+          <ellipse class="map-zone" data-zone="chill" cx="160" cy="350" rx="80" ry="50" fill="#06b6d4" opacity="0.5"/>
+          <text class="map-label" x="160" y="355">CHILL ZONE</text>
+
+          <!-- Food Court -->
+          <rect class="map-zone" data-zone="food" x="320" y="340" width="140" height="80" rx="12" fill="#f59e0b" opacity="0.55"/>
+          <text class="map-label" x="390" y="385">FOOD COURT</text>
+
+          <!-- Art Installations -->
+          <polygon class="map-zone" data-zone="art" points="350,140 400,80 450,140" fill="#ec4899" opacity="0.6"/>
+          <polygon class="map-zone" data-zone="art" points="370,150 400,110 430,150" fill="#ec4899" opacity="0.3"/>
+          <text class="map-label" x="400" y="135">ART</text>
+
+          <!-- Camping -->
+          <path class="map-zone" data-zone="camping" d="M60,400 Q200,380 250,430 Q180,470 60,450 Z" fill="#a3e635" opacity="0.35"/>
+          <text class="map-label" x="155" y="435">CAMPING</text>
+
+          <!-- Entrance -->
+          <rect class="map-zone" data-zone="entrance" x="360" y="450" width="80" height="30" rx="6" fill="#ffffff" opacity="0.3"/>
+          <text class="map-label" x="400" y="470">ENTRANCE</text>
+
+          <!-- Trees decoration -->
+          <circle cx="520" cy="380" r="8" fill="#166534" opacity="0.6"/>
+          <circle cx="540" cy="395" r="6" fill="#166534" opacity="0.5"/>
+          <circle cx="555" cy="375" r="7" fill="#166534" opacity="0.5"/>
+          <circle cx="80" cy="250" r="5" fill="#166534" opacity="0.6"/>
+          <circle cx="730" cy="180" r="6" fill="#166534" opacity="0.5"/>
+        </svg>
+
+        <div class="map-tooltip" id="mapTooltip">
+          <h4 id="tooltipTitle"></h4>
+          <p id="tooltipDesc"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TICKETS -->
+    <section class="section" id="tickets">
+      <div class="fade-in">
+        <h2 class="section-title">Get Your Pass</h2>
+        <p class="section-subtitle">Early bird prices ending soon. Secure your spot at ECHO 2026.</p>
+      </div>
+
+      <div class="tickets-grid fade-in">
+        <!-- Day Pass -->
+        <div class="ticket">
+          <div class="ticket-header">
+            <div class="ticket-type">Single</div>
+            <div class="ticket-name">Day Pass</div>
+          </div>
+          <div class="ticket-body">
+            <ul class="ticket-features">
+              <li>Access to all 4 stages</li>
+              <li>Single day of your choice</li>
+              <li>Food court access</li>
+              <li>Festival app included</li>
+            </ul>
+          </div>
+          <div class="ticket-footer">
+            <div class="ticket-price">€49 <span>/ day</span></div>
+            <button class="ticket-buy">Buy Now</button>
+          </div>
+        </div>
+
+        <!-- Full Pass -->
+        <div class="ticket featured">
+          <div class="ticket-badge">Most Popular</div>
+          <div class="ticket-header">
+            <div class="ticket-type">Full Experience</div>
+            <div class="ticket-name">3-Day Pass</div>
+          </div>
+          <div class="ticket-body">
+            <ul class="ticket-features">
+              <li>All 3 days full access</li>
+              <li>Camping zone included</li>
+              <li>Priority entry to stages</li>
+              <li>Exclusive merch discount</li>
+              <li>Chill zone lounge access</li>
+            </ul>
+          </div>
+          <div class="ticket-footer">
+            <div class="ticket-price">€119 <span>/ all days</span></div>
+            <button class="ticket-buy">Buy Now</button>
+          </div>
+        </div>
+
+        <!-- VIP -->
+        <div class="ticket">
+          <div class="ticket-header">
+            <div class="ticket-type">Premium</div>
+            <div class="ticket-name">VIP Pass</div>
+          </div>
+          <div class="ticket-body">
+            <ul class="ticket-features">
+              <li>All 3 days + backstage access</li>
+              <li>VIP glamping area</li>
+              <li>Meet & greet with artists</li>
+              <li>Open bar at VIP lounge</li>
+              <li>Festival gift bag</li>
+            </ul>
+          </div>
+          <div class="ticket-footer">
+            <div class="ticket-price">€299 <span>/ all days</span></div>
+            <button class="ticket-buy">Buy Now</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="festival-footer">
+      <p>ECHO Festival 2026 · Trenčín Airfield, Slovakia</p>
+      <p style="margin-top:0.5rem; font-size:0.75rem;">A fictive festival created by GitHub Copilot for WebScience AI Battle</p>
+    </footer>
+  </div>
+
+  <script>
+    // Map tooltip interactivity
+    const zoneData: Record<string, { title: string; desc: string }> = {
+      'main-stage': { title: 'Main Stage', desc: 'The heart of ECHO — 15,000 capacity, world-class sound system, and immersive LED visuals.' },
+      'electronic': { title: 'Electronic Tent', desc: 'Non-stop beats from dusk till dawn. Intimate 3,000-cap venue with 360° surround sound.' },
+      'forest-stage': { title: 'Forest Stage', desc: 'Nestled among ancient oaks. Acoustic acts and intimate performances under the canopy.' },
+      'chill': { title: 'Chill Zone', desc: 'Hammocks, ambient soundscapes, and artisan coffee. Recharge between sets.' },
+      'food': { title: 'Food Court', desc: '30+ vendors from street food to gourmet. Vegan, gluten-free, and local options.' },
+      'art': { title: 'Art Installations', desc: 'Interactive light sculptures and immersive audiovisual experiences by international artists.' },
+      'camping': { title: 'Camping Area', desc: 'Eco-friendly camping with hot showers, charging stations, and sunrise yoga sessions.' },
+      'entrance': { title: 'Main Entrance', desc: 'Wristband pickup, info point, and lockers. Accessible entry lanes available.' },
+    };
+
+    const tooltip = document.getElementById('mapTooltip')!;
+    const tooltipTitle = document.getElementById('tooltipTitle')!;
+    const tooltipDesc = document.getElementById('tooltipDesc')!;
+    const mapContainer = document.querySelector('.map-container')!;
+
+    document.querySelectorAll('.map-zone').forEach(zone => {
+      zone.addEventListener('mouseenter', (e) => {
+        const target = e.currentTarget as SVGElement;
+        const zoneId = target.dataset.zone;
+        if (!zoneId || !zoneData[zoneId]) return;
+
+        tooltipTitle.textContent = zoneData[zoneId].title;
+        tooltipDesc.textContent = zoneData[zoneId].desc;
+        tooltip.classList.add('visible');
+      });
+
+      zone.addEventListener('mousemove', (e) => {
+        const rect = mapContainer.getBoundingClientRect();
+        const mouseEvent = e as MouseEvent;
+        let x = mouseEvent.clientX - rect.left + 15;
+        let y = mouseEvent.clientY - rect.top - 60;
+
+        if (x + 200 > rect.width) x = mouseEvent.clientX - rect.left - 200;
+        if (y < 0) y = mouseEvent.clientY - rect.top + 15;
+
+        tooltip.style.left = x + 'px';
+        tooltip.style.top = y + 'px';
+      });
+
+      zone.addEventListener('mouseleave', () => {
+        tooltip.classList.remove('visible');
+      });
+    });
+
+    // Scroll reveal animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Smooth scroll for nav
+    document.querySelectorAll('.festival-nav a, .hero-cta').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const href = (e.currentTarget as HTMLAnchorElement).getAttribute('href');
+        if (href && href.startsWith('#')) {
+          e.preventDefault();
+          document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
 </Layout>
