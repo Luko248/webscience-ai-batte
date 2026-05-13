@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "css-first": {
+      "source": "luko248/css-first-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "64c246f043e0230411b980eeaf4b641d0eb013f22e950bcaca5f9dba30ccca54"
+    }
+  }
+}
